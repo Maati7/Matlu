@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Alumnos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap');
+  :root {
+    --bg:#f5f4f0;--surface:#fff;--surface2:#f0ede8;--border:#e2ddd8;--border2:#ccc8c2;
+    --text:#1a1916;--text2:#6b6760;--text3:#9c9890;
+    --green-bg:#e8f5e2;--green:#2d6a1f;--green-mid:#4a9e35;
+    --red-bg:#fceaea;--red:#9b2222;
+    --amber-bg:#fef3dc;--amber:#8a5a00;
+    --r:10px;--rs:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+  .shell{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+  .app-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+  .app-title{font-size:26px;font-weight:600;letter-spacing:-0.5px}
+  .app-title span{color:var(--text2);font-weight:400;font-size:14px;display:block;margin-top:2px}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:24px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+  .stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .stat-value{font-size:22px;font-weight:600}
+  .stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}.stat-value.small{font-size:16px}
+  .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px}
+  .tab-btn{padding:10px 18px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--text2);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+  .tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--text);border-bottom-color:var(--text)}
+  .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  input[type=text],input[type=number],select{font-family:'DM Sans',sans-serif;font-size:14px;height:38px;padding:0 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);color:var(--text);outline:none}
+  input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--border2)}
+  input::placeholder{color:var(--text3)}
+  .search-input{flex:1;min-width:160px}
+  .btn{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;height:38px;padding:0 16px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);color:var(--text);cursor:pointer;white-space:nowrap}
+  .btn:hover{background:var(--surface2)}.btn.primary{background:var(--text);color:#fff;border-color:var(--text)}.btn.primary:hover{background:#333}
+  .btn.small{height:30px;padding:0 10px;font-size:12px}.btn.danger{color:var(--red);border-color:#f0c8c8}.btn.danger:hover{background:var(--red-bg)}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);border-bottom:1px solid var(--border)}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tbody tr:hover td{background:var(--surface2)}
+  tbody tr:last-child td{border-bottom:none}
+  .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+  .name-cell{display:flex;align-items:center;gap:10px}
+  .badge{display:inline-flex;align-items:center;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+  .badge:hover{opacity:.8}.badge.pagado{background:var(--green-bg);color:var(--green)}.badge.pendiente{background:var(--red-bg);color:var(--red)}.badge.parcial{background:var(--amber-bg);color:var(--amber)}
+  .month-nav{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .month-nav strong{font-size:15px;font-weight:600;min-width:160px}
+  .month-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+  .month-btn:hover{background:var(--surface2)}
+  .legend{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .asist-cell{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-family:'DM Mono',monospace}
+  .asist-cell:hover{border-color:var(--border2)}
+  .asist-cell.P{background:var(--green-bg);color:var(--green);border-color:#b8ddb0}
+  .asist-cell.A{background:var(--red-bg);color:var(--red);border-color:#f0c0c0}
+  .asist-cell.J{background:var(--amber-bg);color:var(--amber);border-color:#f0d890}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+  .card-title{font-size:15px;font-weight:600;margin-bottom:16px}
+  .field-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .field-row label{font-size:13px;color:var(--text2);min-width:200px}
+  .prefix-wrap{position:relative;display:inline-block}
+  .prefix{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3);pointer-events:none}
+  .prefix-wrap input{padding-left:26px;width:160px}
+  .slider-group{display:flex;align-items:center;gap:10px;flex:1;min-width:200px}
+  input[type=range]{flex:1;accent-color:var(--text);cursor:pointer}
+  .pct-box{width:80px!important}
+  .results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+  .res-card{background:var(--surface2);border-radius:var(--rs);padding:12px 14px}
+  .res-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+  .res-value{font-size:18px;font-weight:600}
+  .res-value.green{color:var(--green)}.res-value.amber{color:var(--amber)}
+  .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+  .empty{text-align:center;padding:32px;color:var(--text3);font-size:14px}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:24px;width:400px;max-width:95vw;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:17px;font-weight:600;margin-bottom:18px}
+  .modal label{font-size:13px;color:var(--text2);display:block;margin-bottom:5px}
+  .modal input,.modal select{width:100%;margin-bottom:14px}
+  .modal-note{font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:14px}
+  .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="app-header">
+    <div class="app-title">Mis Alumnos<span>Gestión de asistencia y mensualidades</span></div>
+    <button class="btn primary" onclick="openModal()">+ Agregar alumno</button>
+  </div>
+  <div class="stats-grid" id="stats"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setTab('lista')">Lista y pagos</button>
+    <button class="tab-btn" onclick="setTab('asistencia')">Asistencia</button>
+    <button class="tab-btn" onclick="setTab('cuotas')">Cuotas y aumentos</button>
+  </div>
+
+  <div id="tab-lista">
+    <div class="toolbar">
+      <input type="text" class="search-input" placeholder="Buscar alumno..." id="search" oninput="render()">
+      <select id="filtro-pago" onchange="render()">
+        <option value="">Todos</option><option value="pagado">Pagado</option>
+        <option value="pendiente">Pendiente</option><option value="parcial">Parcial</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:35%">Alumno</th><th style="width:18%">Contacto</th>
+          <th style="width:15%">Cuota</th><th style="width:14%">Estado</th><th style="width:18%">Acciones</th>
+        </tr></thead>
+        <tbody id="tbody-lista"></tbody>
+      </table>
+    </div>
+    <div id="empty-lista" class="empty" style="display:none">No se encontraron alumnos.</div>
+  </div>
+
+  <div id="tab-asistencia" style="display:none">
+    <div class="month-nav">
+      <button class="month-btn" onclick="changeMonth(-1)">&#8249;</button>
+      <strong id="month-label"></strong>
+      <button class="month-btn" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="dot" style="background:var(--green-mid)"></div>Presente (P)</div>
+      <div class="legend-item"><div class="dot" style="background:#e05050"></div>Ausente (A)</div>
+      <div class="legend-item"><div class="dot" style="background:#d4a020"></div>Justificado (J)</div>
+      <div class="legend-item" style="color:var(--text3)">Hacé clic en cada casilla para marcar</div>
+    </div>
+    <div class="table-wrap">
+      <table style="table-layout:auto;min-width:500px">
+        <thead><tr id="asist-thead"></tr></thead>
+        <tbody id="tbody-asistencia"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-cuotas" style="display:none">
+    <div class="card">
+      <div class="card-title">Cuota base del curso</div>
+      <div class="field-row">
+        <label>Importe base (alumnos sin cuota individual)</label>
+        <div class="prefix-wrap"><span class="prefix">$</span><input type="number" id="cuota-base" min="0" value="15000" oninput="render()"></div>
+      </div>
+      <p style="font-size:12px;color:var(--text3)">Podés asignar cuotas individuales al editar cada alumno.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Simulador de aumento</div>
+      <div class="field-row">
+        <label>Cuota a simular</label>
+        <div class="prefix-wrap"><span class="prefix">$</span><input type="number" id="cuota-sim" min="0" value="15000" oninput="calcAumento()"></div>
+      </div>
+      <div class="field-row" style="margin-bottom:0">
+        <label>Porcentaje de aumento</label>
+        <div class="slider-group">
+          <input type="range" min="1" max="200" step="1" id="pct-slider" value="30" oninput="syncSlider()">
+          <div class="prefix-wrap">
+            <input type="number" class="pct-box" id="pct-input" min="1" max="500" value="30" oninput="syncInput()">
+            <span class="prefix" style="left:auto;right:10px">%</span>
+          </div>
+        </div>
+      </div>
+      <div class="results-grid" id="calc-results"></div>
+      <hr class="divider">
+      <div class="card-title" style="font-size:14px;margin-bottom:12px">Impacto en la recaudación mensual</div>
+      <div class="results-grid" id="recaud-results"></div>
+      <p style="font-size:12px;color:var(--text3);margin-top:10px">Calculado con las cuotas de cada alumno (o la base si no tienen asignada).</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Tabla de aumentos rápidos</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Basado en la cuota a simular: $<span id="tabla-base-label">15.000</span></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aumento</th><th>Cuota nueva</th><th>Diferencia</th><th>Recaud. total</th></tr></thead>
+          <tbody id="tbody-tabla"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Agregar alumno</h3>
+    <label>Nombre completo</label>
+    <input type="text" id="inp-nombre" placeholder="Ej: María García">
+    <label>Teléfono / contacto</label>
+    <input type="text" id="inp-tel" placeholder="Ej: 341 555-0000">
+    <label>Cuota individual (opcional)</label>
+    <div class="prefix-wrap" style="display:block;margin-bottom:6px">
+      <span class="prefix">$</span>
+      <input type="number" id="inp-cuota" placeholder="Dejar vacío = cuota base" min="0" style="padding-left:26px;width:100%">
+    </div>
+    <p class="modal-note">Si lo dejás vacío, se usa la cuota base del curso.</p>
+    <label>Estado de mensualidad</label>
+    <select id="inp-pago">
+      <option value="pendiente">Pendiente</option>
+      <option value="pagado">Pagado</option>
+      <option value="parcial">Parcial</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveAlumno()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const COLORS=['#1a4fa0','#0f6e56','#7a2d1a','#7a2358','#2d6a1f','#6b3d00','#4a2d8a'];
+const FILLS=['#e8effe','#e1f5ee','#faecea','#faebf4','#e8f5e2','#fef3dc','#eeedfe'];
+const SK='mis_alumnos_v1';
+let alumnos=[],asistencia={},editId=null,currentTab='lista',nextId=1;
+let viewMonth=new Date();viewMonth.setDate(1);
+
+function saveData(){try{localStorage.setItem(SK,JSON.stringify({alumnos,asistencia,nextId}))}catch(e){}}
+function loadData(){try{const r=localStorage.getItem(SK);if(r){const d=JSON.parse(r);alumnos=d.alumnos||[];asistencia=d.asistencia||{};nextId=d.nextId||(alumnos.length+1);return true}}catch(e){}return false}
+function initDefaults(){
+  alumnos=[
+    {id:1,nombre:'Ana Martínez',tel:'341 555-1234',pago:'pagado',cuota:null},
+    {id:2,nombre:'Carlos López',tel:'341 555-5678',pago:'pendiente',cuota:null},
+    {id:3,nombre:'Lucía Fernández',tel:'341 555-9012',pago:'pagado',cuota:20000},
+    {id:4,nombre:'Tomás Pérez',tel:'341 555-3456',pago:'parcial',cuota:null},
+    {id:5,nombre:'Valentina Sosa',tel:'341 555-7890',pago:'pendiente',cuota:null}
+  ];
+  nextId=6;saveData();
+}
+function fmt(n){return'$'+Math.round(n).toLocaleString('es-AR')}
+function initials(n){return n.trim().split(/\s+/).slice(0,2).map(w=>w[0].toUpperCase()).join('')}
+function ci(id){return(id-1)%COLORS.length}
+function getCuotaBase(){return parseFloat(document.getElementById('cuota-base').value)||0}
+function getAlumnoCuota(a){return a.cuota!=null?a.cuota:getCuotaBase()}
+function asistKey(aid,y,m,d){return`${aid}_${y}_${m}_${d}`}
+function getDiasHabiles(y,m){const dias=[],tot=new Date(y,m+1,0).getDate();for(let d=1;d<=tot;d++){const dw=new Date(y,m,d).getDay();if(dw!==0&&dw!==6)dias.push(d)}return dias}
+
+function renderStats(){
+  const tot=alumnos.length,pag=alumnos.filter(a=>a.pago==='pagado').length,pend=alumnos.filter(a=>a.pago==='pendiente').length;
+  const y=viewMonth.getFullYear(),m=viewMonth.getMonth(),dias=getDiasHabiles(y,m);
+  let pres=0,pos=0;alumnos.forEach(a=>dias.forEach(d=>{pos++;if(asistencia[asistKey(a.id,y,m,d)]==='P')pres++}));
+  const pctAs=pos>0?Math.round(pres/pos*100)+'%':'—';
+  const recaud=alumnos.filter(a=>a.pago==='pagado').reduce((s,a)=>s+getAlumnoCuota(a),0);
+  const pendM=alumnos.filter(a=>a.pago!=='pagado').reduce((s,a)=>s+getAlumnoCuota(a),0);
+  document.getElementById('stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total alumnos</div><div class="stat-value">${tot}</div></div>
+    <div class="stat-card"><div class="stat-label">Al día</div><div class="stat-value green">${pag}</div></div>
+    <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value red">${pend}</div></div>
+    <div class="stat-card"><div class="stat-label">Recaudado</div><div class="stat-value green small">${fmt(recaud)}</div></div>
+    <div class="stat-card"><div class="stat-label">Por cobrar</div><div class="stat-value red small">${pendM>0?fmt(pendM):'$0'}</div></div>
+    <div class="stat-card"><div class="stat-label">% Asistencia</div><div class="stat-value">${pctAs}</div></div>
+  `;
+}
+
+function renderLista(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const f=document.getElementById('filtro-pago').value;
+  const fil=alumnos.filter(a=>a.nombre.toLowerCase().includes(q)&&(!f||a.pago===f));
+  const tbody=document.getElementById('tbody-lista'),empty=document.getElementById('empty-lista');
+  if(!fil.length){tbody.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  tbody.innerHTML=fil.map(a=>{
+    const c=ci(a.id);
+    const cL=a.cuota!=null?fmt(a.cuota):fmt(getCuotaBase())+' <span style="font-size:11px;color:var(--text3)">(base)</span>';
+    const bL=a.pago==='pagado'?'Pagado':a.pago==='pendiente'?'Pendiente':'Parcial';
+    return`<tr><td><div class="name-cell"><div class="avatar" style="background:${FILLS[c]};color:${COLORS[c]}">${initials(a.nombre)}</div><span style="font-weight:500">${a.nombre}</span></div></td><td style="color:var(--text2);font-size:13px">${a.tel||'—'}</td><td style="font-size:13px">${cL}</td><td><button class="badge ${a.pago}" onclick="cyclePago(${a.id})" title="Clic para cambiar">${bL}</button></td><td><button class="btn small" onclick="editAlumno(${a.id})" style="margin-right:5px">Editar</button><button class="btn small danger" onclick="delAlumno(${a.id})">Borrar</button></td></tr>`;
+  }).join('');
+}
+
+function renderAsistencia(){
+  const y=viewMonth.getFullYear(),m=viewMonth.getMonth();
+  document.getElementById('month-label').textContent=`${MESES[m]} ${y}`;
+  const dias=getDiasHabiles(y,m);
+  document.getElementById('asist-thead').innerHTML='<th style="white-space:nowrap">Alumno</th>'+dias.map(d=>`<th style="text-align:center;min-width:32px;font-size:11px">${d}</th>`).join('')+'<th style="text-align:center">%</th>';
+  document.getElementById('tbody-asistencia').innerHTML=alumnos.map(a=>{
+    const c=ci(a.id);let pres=0;
+    const cells=dias.map(d=>{const key=asistKey(a.id,y,m,d);const v=asistencia[key]||'';if(v==='P')pres++;return`<td style="text-align:center;padding:6px 2px"><span class="asist-cell ${v}" onclick="cycleAsist('${key}')">${v||'·'}</span></td>`;}).join('');
+    const pct=dias.length>0?Math.round(pres/dias.length*100)+'%':'—';
+    return`<tr><td><div class="name-cell"><div class="avatar" style="background:${FILLS[c]};color:${COLORS[c]};width:28px;height:28px;font-size:11px">${initials(a.nombre)}</div><span style="font-size:13px;font-weight:500">${a.nombre.split(' ')[0]}</span></div></td>${cells}<td style="text-align:center;font-size:13px;font-weight:600;color:var(--text2)">${pct}</td></tr>`;
+  }).join('');
+}
+
+function calcAumento(){
+  const base=parseFloat(document.getElementById('cuota-sim').value)||0;
+  const pct=parseFloat(document.getElementById('pct-input').value)||0;
+  const nueva=base*(1+pct/100),diff=nueva-base;
+  document.getElementById('calc-results').innerHTML=`<div class="res-card"><div class="res-label">Cuota actual</div><div class="res-value">${fmt(base)}</div></div><div class="res-card"><div class="res-label">Aumento (${pct}%)</div><div class="res-value amber">+ ${fmt(diff)}</div></div><div class="res-card"><div class="res-label">Cuota nueva</div><div class="res-value green">${fmt(nueva)}</div></div>`;
+  const rA=alumnos.reduce((s,a)=>s+getAlumnoCuota(a),0),rN=alumnos.reduce((s,a)=>s+getAlumnoCuota(a)*(1+pct/100),0);
+  document.getElementById('recaud-results').innerHTML=`<div class="res-card"><div class="res-label">Recaudación actual (${alumnos.length} alumnos)</div><div class="res-value">${fmt(rA)}</div></div><div class="res-card"><div class="res-label">Con el aumento</div><div class="res-value green">${fmt(rN)}</div></div><div class="res-card"><div class="res-label">Diferencia total</div><div class="res-value green">+ ${fmt(rN-rA)}</div></div>`;
+  document.getElementById('tabla-base-label').textContent=Math.round(base).toLocaleString('es-AR');
+  document.getElementById('tbody-tabla').innerHTML=[5,10,15,20,25,30,40,50,75,100].map(p=>{
+    const nv=base*(1+p/100),df=nv-base,rec=alumnos.reduce((s,a)=>s+getAlumnoCuota(a)*(1+p/100),0);
+    return`<tr><td style="font-weight:600;color:var(--green)">${p}%</td><td>${fmt(nv)}</td><td style="color:var(--green-mid)">+ ${fmt(df)}</td><td>${fmt(rec)}</td></tr>`;
+  }).join('');
+}
+
+function syncSlider(){document.getElementById('pct-input').value=document.getElementById('pct-slider').value;calcAumento()}
+function syncInput(){const v=parseFloat(document.getElementById('pct-input').value)||0;document.getElementById('pct-slider').value=Math.min(v,200);calcAumento()}
+function cycleAsist(key){const states=['','P','A','J'];const cur=asistencia[key]||'';const next=states[(states.indexOf(cur)+1)%states.length];if(!next)delete asistencia[key];else asistencia[key]=next;saveData();render()}
+function cyclePago(id){const order=['pendiente','pagado','parcial'];const a=alumnos.find(x=>x.id===id);if(a){a.pago=order[(order.indexOf(a.pago)+1)%order.length];saveData();render()}}
+function openModal(id){editId=id||null;const a=id?alumnos.find(x=>x.id===id):null;document.getElementById('modal-title').textContent=id?'Editar alumno':'Agregar alumno';document.getElementById('inp-nombre').value=a?a.nombre:'';document.getElementById('inp-tel').value=a?a.tel:'';document.getElementById('inp-cuota').value=(a&&a.cuota!=null)?a.cuota:'';document.getElementById('inp-pago').value=a?a.pago:'pendiente';document.getElementById('modal-overlay').classList.add('open');setTimeout(()=>document.getElementById('inp-nombre').focus(),50)}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open')}
+function saveAlumno(){const nombre=document.getElementById('inp-nombre').value.trim();if(!nombre){alert('Por favor ingresá el nombre.');return}const tel=document.getElementById('inp-tel').value.trim();const cuotaRaw=document.getElementById('inp-cuota').value;const cuota=cuotaRaw!==''?parseFloat(cuotaRaw):null;const pago=document.getElementById('inp-pago').value;if(editId){const a=alumnos.find(x=>x.id===editId);Object.assign(a,{nombre,tel,cuota,pago})}else{alumnos.push({id:nextId++,nombre,tel,pago,cuota})}saveData();closeModal();render()}
+function editAlumno(id){openModal(id)}
+function delAlumno(id){if(!confirm('¿Eliminar este alumno?'))return;alumnos=alumnos.filter(a=>a.id!==id);saveData();render()}
+function setTab(t){currentTab=t;document.querySelectorAll('.tab-btn').forEach((el,i)=>{el.classList.toggle('active',['lista','asistencia','cuotas'][i]===t)});['lista','asistencia','cuotas'].forEach(n=>{document.getElementById('tab-'+n).style.display=n===t?'block':'none'});render()}
+function changeMonth(dir){viewMonth.setMonth(viewMonth.getMonth()+dir);render()}
+function render(){renderStats();if(currentTab==='lista')renderLista();else if(currentTab==='asistencia')renderAsistencia();else if(currentTab==='cuotas')calcAumento()}
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+if(!loadData())initDefaults();
+render();
+</script>
+</body>
+</html>
